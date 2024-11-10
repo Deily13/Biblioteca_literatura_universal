@@ -10,10 +10,12 @@ public class MenuService {
 
     private final BookService bookService;
     private final HttpClientServiceImpl httpClientServiceImpl;
+    private final AuthorServiceImpl authorServiceImpl;
 
-    public MenuService(BookService bookService, HttpClientServiceImpl httpClientServiceImpl) {
+    public MenuService(BookService bookService, HttpClientServiceImpl httpClientServiceImpl, AuthorServiceImpl authorServiceImpl) {
         this.bookService = bookService;
         this.httpClientServiceImpl = httpClientServiceImpl;
+        this.authorServiceImpl = authorServiceImpl;
     }
 
     public void showMenu() {
@@ -21,13 +23,17 @@ public class MenuService {
 
         while (true) {
             System.out.println(""" 
-                    1 - Buscar libro por titulo mediante la API
-                    2 - Listar libros registrados
-                    3 - Buscar listado de libros escritos por autor mediante la API
-                    4 - Listar libros de un autor mediante la base de datos
-                    5 -Buscar autores vivos en determinado año
-                    
-                    0 - Salir;
+                    \n\n\n\n____________________________________________________________________
+                    1 - Buscar libro por titulo mediante la API                        |
+                    2 - Listar libros registrados                                      |
+                    3 - Listar Autores disponibles en la base de datos                 |
+                    4 - Buscar listado de libros escritos por autor mediante la API    |
+                    5 - Listar libros de un autor mediante la base de datos            |
+                    6 - Buscar autores vivos en determinado año                        |
+                    7 - Contar la cantidad de libros disponibles en un idioma          |
+                                                                                       |
+                    0 - Salir;                                                         |
+                    *******************************************************************\n
                     """);
 
             System.out.print("Seleccione una opción: ");
@@ -43,13 +49,19 @@ public class MenuService {
                     bookService.showAllBooks();
                     break;
                 case "3":
-                    httpClientServiceImpl.getBooksByAuthor();
+                    authorServiceImpl.listAllAuthors();
                     break;
                 case "4":
-                    bookService.showBooksByAuthorName();
+                    httpClientServiceImpl.getBooksByAuthor();
                     break;
                 case "5":
+                    bookService.showBooksByAuthorName();
+                    break;
+                case "6":
                     httpClientServiceImpl.getLivingAuthorsByYear();
+                    break;
+                case "7":
+                    bookService.countBooksByLanguage();
                     break;
                 case "0":
                     System.out.println("Saliendo del programa...");

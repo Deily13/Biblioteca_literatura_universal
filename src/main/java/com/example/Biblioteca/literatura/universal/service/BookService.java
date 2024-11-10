@@ -12,4 +12,6 @@ public interface BookService {
     List<Book> showAllBooks();
 
     List<Book> showBooksByAuthorName();
+
+    void countBooksByLanguage();
 }

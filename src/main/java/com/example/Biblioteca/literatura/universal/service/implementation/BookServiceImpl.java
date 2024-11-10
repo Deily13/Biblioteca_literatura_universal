@@ -79,5 +79,26 @@ public class BookServiceImpl implements BookService {
         return books;
     }
 
+    public void countBooksByLanguage() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("""
+                Ingresa el idioma para contar los libros:
+                
+                en (ingle)
+                es (español)
+                fr (frances)
+                de (aleman)
+                it (italiano)
+                pt (portugues)
+                
+                """);
+        String language = scanner.nextLine().trim(); // Leer el idioma ingresado por la consola
+
+        // Contar los libros en el idioma proporcionado
+        long bookCount = bookRepository.countByLanguage(language);
+
+        // Mostrar el resultado
+        System.out.println("Cantidad de libros en el idioma '" + language + "': " + bookCount);
+    }
 
 }
