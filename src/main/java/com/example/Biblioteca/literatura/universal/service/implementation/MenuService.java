@@ -24,7 +24,8 @@ public class MenuService {
                     1 - Buscar libro por titulo mediante la API
                     2 - Listar libros registrados
                     3 - Buscar listado de libros escritos por autor mediante la API
-                    4 - Listar libros por idioma 
+                    4 - Listar libros de un autor mediante la base de datos
+                    5 -Buscar autores vivos en determinado año
                     
                     0 - Salir;
                     """);
@@ -44,7 +45,12 @@ public class MenuService {
                 case "3":
                     httpClientServiceImpl.getBooksByAuthor();
                     break;
-
+                case "4":
+                    bookService.showBooksByAuthorName();
+                    break;
+                case "5":
+                    httpClientServiceImpl.getLivingAuthorsByYear();
+                    break;
                 case "0":
                     System.out.println("Saliendo del programa...");
                     return;

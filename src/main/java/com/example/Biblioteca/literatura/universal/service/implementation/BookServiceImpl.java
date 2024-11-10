@@ -7,6 +7,7 @@ import com.example.Biblioteca.literatura.universal.service.BookService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Scanner;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -57,9 +58,25 @@ public class BookServiceImpl implements BookService {
         return books;
     }
 
-    @Override
     public List<Book> showBooksByAuthorName() {
-        return List.of();
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ingrese el nombre del autor: ");
+        String authorName = scanner.nextLine();
+
+        // Buscar los libros por nombre del autor
+        List<Book> books = bookRepository.findByAuthor(authorName);
+
+        if (books.isEmpty()) {
+            System.out.println("No se encontraron libros para el autor especificado.");
+        } else {
+            System.out.println("\nLibros escritos por " + authorName + ":");
+            System.out.println("------------------------------------------------");
+            for (Book book : books) {
+                System.out.println("Título: " + book.getTitle());
+            }
+            System.out.println("------------------------------------------------\n");
+        }
+        return books;
     }
 
 

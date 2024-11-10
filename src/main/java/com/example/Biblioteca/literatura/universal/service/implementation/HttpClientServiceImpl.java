@@ -30,12 +30,11 @@ public class HttpClientServiceImpl implements HttpClientService {
     private static final String API_URL = "https://gutendex.com/books/";
     private final BookRepository bookRepository;
     private final AuthorServiceImpl authorService;  // Inyectamos el servicio de autor
-    private final Gson gson;
+
 
     public HttpClientServiceImpl(BookRepository bookRepository, AuthorServiceImpl authorService) {
         this.bookRepository = bookRepository;
         this.authorService = authorService;
-        this.gson = new Gson();
     }
 
     @Override
@@ -180,5 +179,57 @@ public class HttpClientServiceImpl implements HttpClientService {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getLivingAuthorsByYear() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ingrese el año para buscar autores vivos: ");
+        int year = scanner.nextInt();
+
+        try {
+            String apiUrl = API_URL + "?languages=en"; // Cambiar el filtro según los requerimientos de la API
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .GET()
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+                JsonArray results = jsonObject.getAsJsonArray("results");
+
+                System.out.println("\nAutores vivos en el año " + year + ":");
+                System.out.println("-------------------------------------");
+
+                for (int i = 0; i < results.size(); i++) {
+                    JsonObject book = results.get(i).getAsJsonObject();
+                    JsonArray authors = book.getAsJsonArray("authors");
+
+                    for (int j = 0; j < authors.size(); j++) {
+                        JsonObject author = authors.get(j).getAsJsonObject();
+
+                        // Verificar si el autor estaba vivo en el año especificado
+                        int birthYear = author.has("birth_year") ? author.get("birth_year").getAsInt() : 0;
+                        int deathYear = author.has("death_year") ? author.get("death_year").getAsInt() : 0;
+
+                        if (birthYear <= year && (deathYear == 0 || deathYear > year)) {
+                            String authorName = author.get("name").getAsString();
+                            System.out.println("Nombre del autor: " + authorName);
+                        }
+                    }
+                }
+
+                System.out.println("-------------------------------------\n");
+
+            } else {
+                System.out.println("Error al consultar la API: " + response.statusCode());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 }
