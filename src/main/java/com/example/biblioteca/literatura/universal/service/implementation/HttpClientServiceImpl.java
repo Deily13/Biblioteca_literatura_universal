@@ -1,5 +1,13 @@
-package com.example.Biblioteca.literatura.universal.service.implementation;
+package com.example.biblioteca.literatura.universal.service.implementation;
 
+import com.example.biblioteca.literatura.universal.model.Book;
+import com.example.biblioteca.literatura.universal.model.Author;
+import com.example.biblioteca.literatura.universal.repository.BookRepository;
+import com.example.biblioteca.literatura.universal.service.HttpClientService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,29 +20,62 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
-import com.example.Biblioteca.literatura.universal.model.Book;
-import com.example.Biblioteca.literatura.universal.model.Author;
-import com.example.Biblioteca.literatura.universal.repository.BookRepository;
-import com.example.Biblioteca.literatura.universal.service.HttpClientService;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.springframework.stereotype.Service;
-
-
 @Service
 public class HttpClientServiceImpl implements HttpClientService {
 
     private static final String API_URL = "https://gutendex.com/books/";
     private final BookRepository bookRepository;
-    private final AuthorServiceImpl authorService;  // Inyectamos el servicio de autor
-
+    private final AuthorServiceImpl authorService;
 
     public HttpClientServiceImpl(BookRepository bookRepository, AuthorServiceImpl authorService) {
         this.bookRepository = bookRepository;
         this.authorService = authorService;
+    }
+
+    private JsonObject sendRequest(String url) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return JsonParser.parseString(response.body()).getAsJsonObject();
+        } else {
+            System.out.println("Error al consultar la API: " + response.statusCode());
+            return null;
+        }
+    }
+
+    private Book parseBookJson(JsonObject bookJson, String authorName) {
+        String bookTitle = bookJson.get("title").getAsString();
+        int downloadCount = bookJson.has("download_count") ? bookJson.get("download_count").getAsInt() : 0;
+        String language = bookJson.has("languages") && bookJson.getAsJsonArray("languages").size() > 0
+                ? bookJson.getAsJsonArray("languages").get(0).getAsString()
+                : "Unknown Language";
+
+        Book book = new Book();
+        book.setTitle(bookTitle);
+        book.setAuthor(authorName);
+        book.setDownload_count(downloadCount);
+        book.setLanguage(language);
+
+        return book;
+    }
+
+    private Author parseAuthorJson(JsonObject authorJson) {
+        String authorName = authorJson.get("name").getAsString();
+        int birthYear = authorJson.has("birth_year") ? authorJson.get("birth_year").getAsInt() : 0;
+        int deathYear = authorJson.has("death_year") ? authorJson.get("death_year").getAsInt() : 0;
+
+        Author author = new Author();
+        author.setName(authorName);
+        author.setBirth_year(birthYear);
+        author.setDeath_year(deathYear);
+
+        return author;
     }
 
     @Override
@@ -78,7 +119,7 @@ public class HttpClientServiceImpl implements HttpClientService {
                             : "Unknown Language";
 
 
-                    if (bookRepository.existsByTitle(bookTitle)) {
+                    if (bookRepository.existsByTitleIgnoreCase(bookTitle)) {
                         System.out.println("El libro ya existe en la base de datos.");
                         return null;
                     }
@@ -104,6 +145,9 @@ public class HttpClientServiceImpl implements HttpClientService {
                     System.out.println("El libro ha sido guardado en la base de datos.");
 
                     return book;
+                } else {
+                    // Si no se encuentra el libro en los resultados de la API
+                    System.out.println("No se encontró el libro \"" + title + "\" en la API.");
                 }
             }
         } catch (Exception e) {
@@ -112,71 +156,40 @@ public class HttpClientServiceImpl implements HttpClientService {
         return null;
     }
 
+
     public void getBooksByAuthor() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el nombre del autor: ");
         String authorName = scanner.nextLine();
 
         try {
-            // Codificar el nombre del autor para la búsqueda en la API
             String encodedAuthorName = URLEncoder.encode(authorName, StandardCharsets.UTF_8);
             String apiUrl = API_URL + "?search=" + encodedAuthorName;
+            JsonObject responseJson = sendRequest(apiUrl);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl))
-                    .GET()
-                    .build();
+            if (responseJson != null) {
+                JsonArray results = responseJson.getAsJsonArray("results");
+                List<Book> booksByAuthor = new ArrayList<>();
 
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                for (int i = 0; i < results.size(); i++) {
+                    JsonObject bookJson = results.get(i).getAsJsonObject();
+                    Book book = parseBookJson(bookJson, authorName);
 
-            if (response.statusCode() == 200) {
-                JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-                JsonArray results = jsonObject.getAsJsonArray("results");
-
-                if (results.size() > 0) {
-                    List<Book> booksByAuthor = new ArrayList<>();
-
-                    for (int i = 0; i < results.size(); i++) {
-                        JsonObject bookObject = results.get(i).getAsJsonObject();
-
-                        String bookTitle = bookObject.get("title").getAsString();
-                        int downloadCount = bookObject.has("download_count") ? bookObject.get("download_count").getAsInt() : 0;
-                        String language = bookObject.has("languages") && bookObject.getAsJsonArray("languages").size() > 0
-                                ? bookObject.getAsJsonArray("languages").get(0).getAsString()
-                                : "Unknown Language";
-
-                        System.out.println("Título: " + bookTitle);
-                        System.out.println("Idioma: " + language);
-                        System.out.println("Descargas: " + downloadCount);
-                        System.out.println("-----------------------------");
-
-                        // Verificar si el libro ya existe en la base de datos
-                        if (!bookRepository.existsByTitle(bookTitle)) {
-                            // Crear el objeto Book y agregarlo a la lista si no existe en la base de datos
-                            Book book = new Book();
-                            book.setTitle(bookTitle);
-                            book.setAuthor(authorName);
-                            book.setDownload_count(downloadCount);
-                            book.setLanguage(language);
-                            booksByAuthor.add(book);
-                        } else {
-                            System.out.println("El libro \"" + bookTitle + "\" ya existe en la base de datos y no se agregará nuevamente.");
-                        }
-                    }
-
-                    // Persistir los libros nuevos en la base de datos
-                    if (!booksByAuthor.isEmpty()) {
-                        bookRepository.saveAll(booksByAuthor);
-                        System.out.println("Los libros nuevos del autor han sido guardados en la base de datos.");
+                    if (!bookRepository.existsByTitleIgnoreCase(book.getTitle())) {
+                        booksByAuthor.add(book);
                     } else {
-                        System.out.println("No hay libros nuevos para agregar en la base de datos.");
+                        System.out.println("El libro \"" + book.getTitle() + "\" ya existe en la base de datos.");
                     }
+                }
+
+                if (!booksByAuthor.isEmpty()) {
+                    bookRepository.saveAll(booksByAuthor);
+                    System.out.println("Los libros nuevos del autor han sido guardados en la base de datos.");
                 } else {
-                    System.out.println("No se encontraron libros para el autor especificado.");
+                    System.out.println("No hay libros nuevos para agregar en la base de datos.");
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -187,51 +200,26 @@ public class HttpClientServiceImpl implements HttpClientService {
         int year = scanner.nextInt();
 
         try {
-            String apiUrl = API_URL + "?languages=en"; // Cambiar el filtro según los requerimientos de la API
+            JsonObject responseJson = sendRequest(API_URL + "?languages=en");
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl))
-                    .GET()
-                    .build();
-
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-                JsonArray results = jsonObject.getAsJsonArray("results");
+            if (responseJson != null) {
+                JsonArray results = responseJson.getAsJsonArray("results");
 
                 System.out.println("\nAutores vivos en el año " + year + ":");
-                System.out.println("-------------------------------------");
-
                 for (int i = 0; i < results.size(); i++) {
                     JsonObject book = results.get(i).getAsJsonObject();
                     JsonArray authors = book.getAsJsonArray("authors");
 
                     for (int j = 0; j < authors.size(); j++) {
-                        JsonObject author = authors.get(j).getAsJsonObject();
-
-                        // Verificar si el autor estaba vivo en el año especificado
-                        int birthYear = author.has("birth_year") ? author.get("birth_year").getAsInt() : 0;
-                        int deathYear = author.has("death_year") ? author.get("death_year").getAsInt() : 0;
-
-                        if (birthYear <= year && (deathYear == 0 || deathYear > year)) {
-                            String authorName = author.get("name").getAsString();
-                            System.out.println("Nombre del autor: " + authorName);
+                        Author author = parseAuthorJson(authors.get(j).getAsJsonObject());
+                        if (author.getBirth_year() <= year && (author.getDeath_year() == 0 || author.getDeath_year() > year)) {
+                            System.out.println("Nombre del autor: " + author.getName());
                         }
                     }
                 }
-
-                System.out.println("-------------------------------------\n");
-
-            } else {
-                System.out.println("Error al consultar la API: " + response.statusCode());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
 }

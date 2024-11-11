@@ -1,4 +1,4 @@
-package com.example.Biblioteca.literatura.universal.model;
+package com.example.biblioteca.literatura.universal.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

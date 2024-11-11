@@ -17,38 +17,6 @@ El programa ofrece las siguientes funciones:
 6. **Buscar autores vivos en determinado año**: Permite buscar autores que estén vivos en un año específico.
 7. **Contar la cantidad de libros disponibles en un idioma**: Permite contar cuántos libros están disponibles en un idioma específico que es proporcionado por el usuario.
 
-## Estructura del Proyecto
-
-La estructura de este programa está organizada en capas de manera que facilita la separación de responsabilidades y el mantenimiento:
-
-src
-└── main
-└── java
-└── com
-└── example
-└── biblioteca_literatura_universal
-├── controller
-│   └── BookController.java
-├── model
-│   ├── Book.java
-│   └── Author.java
-├── repository
-│   ├── BookRepository.java
-│   └── AuthorRepository.java
-├── service
-│   ├── BookService.java
-│   └── AuthorService.java
-├── serviceImpl
-│   ├── BookServiceImpl.java
-│   └── AuthorServiceImpl.java
-├── MenuService.java
-├── HttpClientServiceImpl.java
-└── Application.java
-└── resources
-└── application.properties
-
-
-
 ### Descripción de las Capas
 
 - **Modelo (`model`)**: Contiene las clases que representan las entidades en la base de datos, como `Book` (libro) y `Author` (autor).
@@ -89,4 +57,4 @@ Para ejecutar este programa, necesitas:
 
 1. Clona el repositorio del proyecto:
    ```bash
-   git clone <URL_DEL_REPOSITORIO>
+   git clone <https://github.com/Deily13/Biblioteca_literatura_universal.git>

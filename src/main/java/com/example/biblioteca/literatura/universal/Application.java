@@ -1,8 +1,7 @@
-package com.example.Biblioteca.literatura.universal;
+package com.example.biblioteca.literatura.universal;
 
 
-import com.example.Biblioteca.literatura.universal.controller.BookController;
-import com.example.Biblioteca.literatura.universal.service.implementation.MenuService;
+import com.example.biblioteca.literatura.universal.service.implementation.MenuService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

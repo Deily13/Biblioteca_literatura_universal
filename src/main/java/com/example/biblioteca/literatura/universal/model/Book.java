@@ -1,4 +1,4 @@
-package com.example.Biblioteca.literatura.universal.model;
+package com.example.biblioteca.literatura.universal.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ public class Book {
     private String title;
     private String author;
     private String language;
-    private int download_count;
+    private Integer download_count;
 
 
 }

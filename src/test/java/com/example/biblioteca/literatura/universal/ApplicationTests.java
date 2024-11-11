@@ -1,4 +1,4 @@
-package com.example.Biblioteca.literatura.universal;
+package com.example.biblioteca.literatura.universal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,8 +1,8 @@
-package com.example.Biblioteca.literatura.universal.service.implementation;
+package com.example.biblioteca.literatura.universal.service.implementation;
 
-import com.example.Biblioteca.literatura.universal.model.Author;
-import com.example.Biblioteca.literatura.universal.repository.AuthorRepository;
-import com.example.Biblioteca.literatura.universal.service.AuthorService;
+import com.example.biblioteca.literatura.universal.model.Author;
+import com.example.biblioteca.literatura.universal.repository.AuthorRepository;
+import com.example.biblioteca.literatura.universal.service.AuthorService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +18,10 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author saveAuthor(Author author) {
-        // Verificar si el autor ya existe en la base de datos
-        if (authorRepository.existsById(author.getId())) {
-            System.out.println("El autor ya existe en la base de datos.");
-        } else {
-            // Guardar el autor en la base de datos
+        if (!authorRepository.existsByName(author.getName())) {
             authorRepository.save(author);
-            System.out.println("El autor ha sido guardado en la base de datos.");
+        } else {
+            System.out.println("El autor ya existe en la base de datos.");
         }
         return author;
     }
