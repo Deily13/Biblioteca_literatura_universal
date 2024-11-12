@@ -20,7 +20,7 @@ public class Book {
     private String title;
     private String author;
     private String language;
-    private Integer download_count;
+    private Integer downloadCount;
 
 
 }

@@ -33,7 +33,7 @@ public class BookServiceImpl implements BookService {
             book.setTitle(book.getTitle());         // Asignar título
             book.setAuthor(book.getAuthor());       // Asignar autor
             book.setLanguage(book.getLanguage());   // Asignar idioma
-            book.setDownload_count(book.getDownload_count()); // Asignar cantidad de descargas
+            book.setDownloadCount(book.getDownloadCount()); // Asignar cantidad de descargas
 
             // Guarda el libro en la base de datos
             bookRepository.save(book);
@@ -47,7 +47,7 @@ public class BookServiceImpl implements BookService {
                 book.getTitle() != null &&
                 book.getAuthor() != null &&
                 book.getLanguage() != null &&
-                book.getDownload_count() != null;
+                book.getDownloadCount() != null;
     }
 
     // Método para obtener todos los libros guardados en la base de datos
@@ -106,4 +106,33 @@ public class BookServiceImpl implements BookService {
         System.out.println("Cantidad de libros en el idioma '" + language + "': " + bookCount);
         return bookCount;
     }
+
+    @Override
+    public void showTop5MostDownloadedBooks() {
+        // Obtener los 5 libros más descargados
+        List<Book> topBooks = bookRepository.findTop5ByOrderByDownloadCountDesc();
+
+        // Verificar si la lista de libros está vacía
+        if (topBooks.isEmpty()) {
+            System.out.println("No hay libros registrados en la base de datos.");
+        } else {
+            // Mostrar los libros encontrados (pueden ser menos de 5 si no hay suficientes)
+            System.out.println("\n _____________________________________________________________________________________________________");
+            System.out.println("Los libros más descargados son:");
+            System.out.println("-------------------------------------------------------------------------------------------------------");
+
+            // Mostrar solo los libros encontrados
+            for (Book book : topBooks) {
+                System.out.println("  Título: " + book.getTitle() + " | Autor: " + book.getAuthor() + " | Idioma: " + book.getLanguage());
+            }
+
+            // Si hay menos de 5 libros, indicarlo
+            if (topBooks.size() < 5) {
+                System.out.println("\nSe encontraron " + topBooks.size() + " libros en la base de datos.");
+            }
+
+            System.out.println("-------------------------------------------------------------------------------------------------------\n ");
+        }
+    }
+
 }

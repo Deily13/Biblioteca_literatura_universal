@@ -16,4 +16,6 @@ public interface BookService {
     List<Book> showBooksByAuthorName(String authorName);
 
     long countBooksByLanguage();
+
+    void showTop5MostDownloadedBooks();
 }

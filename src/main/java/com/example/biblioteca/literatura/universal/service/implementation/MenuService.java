@@ -1,5 +1,6 @@
 package com.example.biblioteca.literatura.universal.service.implementation;
 
+import com.example.biblioteca.literatura.universal.controller.BookController;
 import com.example.biblioteca.literatura.universal.service.BookService;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,13 @@ public class MenuService {
     private final BookService bookService;
     private final HttpClientServiceImpl httpClientServiceImpl;
     private final AuthorServiceImpl authorServiceImpl;
+    private final BookController bookController;
 
-    public MenuService(BookService bookService, HttpClientServiceImpl httpClientServiceImpl, AuthorServiceImpl authorServiceImpl) {
+    public MenuService(BookService bookService, HttpClientServiceImpl httpClientServiceImpl, AuthorServiceImpl authorServiceImpl, BookController bookController) {
         this.bookService = bookService;
         this.httpClientServiceImpl = httpClientServiceImpl;
         this.authorServiceImpl = authorServiceImpl;
+        this.bookController = bookController;
     }
 
     public void showMenu() {
@@ -31,6 +34,7 @@ public class MenuService {
                     5 - Listar libros de un autor mediante la base de datos            |
                     6 - Buscar autores vivos en determinado año                        |
                     7 - Contar la cantidad de libros disponibles en un idioma          |
+                    8 - Listar 5 libros mas descargados encontrados en la base de datos|
                                                                                        |
                     0 - Salir;                                                         |
                     *******************************************************************\n
@@ -62,6 +66,9 @@ public class MenuService {
                     break;
                 case "7":
                     bookService.countBooksByLanguage();
+                    break;
+                case "8":
+                    bookService.showTop5MostDownloadedBooks();
                     break;
 
                 case "0":

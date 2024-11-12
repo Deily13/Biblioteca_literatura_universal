@@ -59,7 +59,7 @@ public class HttpClientServiceImpl implements HttpClientService {
         Book book = new Book();
         book.setTitle(bookTitle);
         book.setAuthor(authorName);
-        book.setDownload_count(downloadCount);
+        book.setDownloadCount(downloadCount);
         book.setLanguage(language);
 
         return book;
@@ -137,7 +137,7 @@ public class HttpClientServiceImpl implements HttpClientService {
                     Book book = new Book();
                     book.setTitle(bookTitle);
                     book.setAuthor(authorName);
-                    book.setDownload_count(downloadCount);
+                    book.setDownloadCount(downloadCount);
                     book.setLanguage(language);
 
                     // Guardar el libro en la base de datos

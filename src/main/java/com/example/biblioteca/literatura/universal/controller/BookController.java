@@ -50,9 +50,15 @@ public class BookController {
 
     // Endpoint para contar los libros por idioma
     @GetMapping("/count/language")
-    public ResponseEntity<String> countBooksByLanguage(@RequestParam String language) {
+    public ResponseEntity<String> countBooksByLanguage(@RequestBody String language) {
         long count = bookService.countBooksByLanguage();
         String message = "Cantidad de libros en el idioma '" + language + "': " + count;
         return ResponseEntity.status(HttpStatus.OK).body(message);
+    }
+
+    @GetMapping("/top5Books")
+    public void getTop5MostDownloadedBooks() {
+        // Llamamos al servicio para mostrar los 5 libros más descargados
+        bookService.showTop5MostDownloadedBooks();
     }
 }

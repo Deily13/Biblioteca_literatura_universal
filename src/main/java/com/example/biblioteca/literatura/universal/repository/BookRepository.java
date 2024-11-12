@@ -17,9 +17,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     List<Book> findByAuthor(String authorName);
 
-
-
-    Book findByTitle(String title);
+    List<Book> findTop5ByOrderByDownloadCountDesc();
 
     public long countBooksByLanguage(String language);
 
